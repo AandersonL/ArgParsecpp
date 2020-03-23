@@ -1,12 +1,3 @@
-# ArgParsercpp
-
-
-An simple C++ header for argparseing in linux enviroments, just include in your code and you are ready to go!
-
-
-
-## Example
-```cpp
 #include <iostream>
 
 #include "Argparse.h"
@@ -32,20 +23,3 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-```
-
-
-### Structs
-
-```cpp
-struct Argument {
-    std::string argName;
-    std::string argValue;
-    bool required;
-    int argIndex;
-};
-
-```
-
-
-Any bugs or new features just open an issue, Thanks.
