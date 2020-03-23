@@ -1,7 +1,7 @@
 # ArgParsercpp
 
 
-An simple C++ header for argparseing in linux enviroments, just include in your code and you are ready to go!
+An simple C++ header for parse arguments in linux command line, just include in your code and you are ready to go!
 
 
 
