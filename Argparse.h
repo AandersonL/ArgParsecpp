@@ -8,11 +8,14 @@
 #include <getopt.h>
 
 
+#include <iostream>
+
 /// Struct that represent an argument
 struct Argument {
     std::string argName;
     std::string argValue;
     bool required;
+    bool required_arg;
     int argIndex;
 };
 
@@ -21,8 +24,8 @@ class ArgParse {
 public:
     ArgParse(int argc, char* argv[]);
     bool parse();
-
-    bool addArgument(const std::string& argument, bool required);
+    /// required an argument and if its requried to be passed
+    bool addArgument(const std::string& argument, bool required_arg, bool required);
     std::unordered_map<std::string, Argument>& getArgumentMap() const;
     
     Argument& getArgument(const std::string& argument);
@@ -43,14 +46,14 @@ ArgParse::ArgParse(int argc, char* argv[])
 }
 
 
-bool ArgParse::addArgument(const std::string& argument, bool required) 
+bool ArgParse::addArgument(const std::string& argument, bool required_arg, bool required) 
 {
     argIt = this->arguments.find(argument);
 
     if (argIt != this->arguments.end() )
         return false;
 
-    Argument newArgument{argument,"", required};
+    Argument newArgument{argument,"", required, required_arg};
 
     this->arguments.insert(std::make_pair(argument, newArgument));
 
@@ -64,11 +67,14 @@ bool ArgParse::parse()
 
     int arg = 0;
     int op_i = 0;
+    int need_matches = 0;
+    int matches = 0;
     /// fill long options with our arguments
     for (argIt = arguments.begin(); argIt != arguments.end(); ++argIt, ++op_i) {
         long_options[op_i] = {
-            argIt->first.c_str(), argIt->second.required, 0, argIt->first.at(0)
+            argIt->first.c_str(), argIt->second.required_arg, 0, argIt->first.at(0)
         };
+        if (argIt->second.required) need_matches++;
     }
 
     op_i = 0; // reset var for other loop
@@ -76,15 +82,22 @@ bool ArgParse::parse()
     while ((arg = getopt_long(this->argc, this->argv, "abc:d:f:", long_options, &op_i)) != -1) {
         if (arg == '?') return false;
 
-        
         std::string argumentName = long_options[op_i].name;
         this->argIt = this->arguments.find(argumentName);
         
-        argIt->second.argValue = optarg;
+        if (argIt->second.argValue != "") continue; /// repeated
+
         argIt->second.argIndex = op_i;
+
+        if (argIt->second.required_arg) {
+            argIt->second.argValue = optarg;
+        }
+
+        if (argIt->second.required) matches++;
+
     }
-    
-    return true;
+
+    return matches == need_matches;
 }
 
 
@@ -96,6 +109,6 @@ Argument& ArgParse::getArgument(const std::string& argument)
     if (argIt == this->arguments.end()) 
         throw ("Unable to find argument ");
 
+
     return argIt->second;
 }
-
