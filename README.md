@@ -15,9 +15,10 @@ An simple C++ header for parse arguments in linux command line, just include in 
 int main(int argc, char* argv[])
 {
     ArgParse args(argc, argv);
-
-    args.addArgument("name", true);
-    args.addArgument("age", true);
+    /// addArgument(argName, require_value, require_be_passed)
+    args.addArgument("name", true, true);
+    args.addArgument("age", true, true);
+    args.addArgument("address", true, false);
 
     if (!args.parse()) {
         // display help here
